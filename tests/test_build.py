@@ -57,9 +57,9 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(author['audience'], 'author')
 
     def test_plans_do_not_create_fake_manuscripts(self):
-        self.assertEqual(len(self.public['manuscripts']), 4)
+        self.assertEqual(len(self.public['manuscripts']), 5)
         self.assertEqual(self.author['episodePlan'][0]['status'], '등록 원고 있음')
-        self.assertTrue(all(e['status']=='계획' for e in self.author['episodePlan'][4:]))
+        self.assertTrue(all(e['status']=='계획' for e in self.author['episodePlan'][5:]))
 
     def test_requested_chapter_two_edits_and_chapter_three(self):
         chapters = {c['id']:c for c in self.public['manuscripts']}
@@ -80,7 +80,7 @@ class BuildTests(unittest.TestCase):
         self.assertIn('신자의 삶 전체가 회개여야 한다.', chapter['text'])
         self.assertIn('**1.**', chapter['text'])
         self.assertNotIn('1. 교황도 틀릴 수 있다.', chapter['text'])
-        self.assertEqual(len(self.public['manuscripts']), 4)
+        self.assertEqual(len(self.public['manuscripts']), 5)
         self.assertIn('chapterReviews', self.public)
         self.assertIn('manuscriptFacts', self.public)
         self.assertIn('thesisLinks', self.public)
