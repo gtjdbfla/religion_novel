@@ -63,8 +63,8 @@ cd /home/yulimseo/religion_novel
 python3 scripts/build_views.py
 docker compose run --rm --no-deps religion-novel caddy validate --config /etc/caddy/Caddyfile
 docker compose up -d
-tailscale serve --bg --yes --https=10000 --set-path=/religion http://127.0.0.1:8101
-tailscale serve --bg --yes --https=10000 --set-path=/religion/admin http://127.0.0.1:8102
+tailscale funnel --bg --yes --https=10000 --set-path=/religion http://127.0.0.1:8101
+tailscale funnel --bg --yes --https=10000 --set-path=/religion/admin http://127.0.0.1:8102
 ```
 
 이후 업데이트는 `git pull --ff-only`, `python3 scripts/build_views.py`, `docker compose up -d` 순으로 실행한다. 설정 변경 시 `docker compose exec religion-novel caddy reload --config /etc/caddy/Caddyfile`도 실행한다.
