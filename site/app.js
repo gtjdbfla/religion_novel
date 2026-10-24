@@ -40,7 +40,10 @@ function render() {
   document.querySelector('#mode-badge').textContent = author ? 'AUTHOR' : 'READER';
   const link = document.querySelector('#mode-link');
   link.textContent = author ? '독자 화면' : '작가 화면';
-  link.href = author ? project.links.reader : (project.authorUrl || 'http://127.0.0.1:8102/');
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  link.href = local
+    ? `http://${location.hostname}:${author ? 8101 : 8102}/`
+    : new URL(author ? '../' : 'admin/', location.href).href;
   main.innerHTML = ({read,characters,storyline,settings,foreshadowing,history,analysis})[view]();
   const next = new URLSearchParams({view});
   if (view === 'read' && chapter) next.set('chapter', chapter);
