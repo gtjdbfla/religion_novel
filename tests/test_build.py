@@ -62,8 +62,12 @@ class BuildTests(unittest.TestCase):
         chapter = next(c for c in self.public['manuscripts'] if c['id'] == '001-why')
         self.assertEqual(chapter['text'], '\n'.join(source.splitlines()[1:]).strip())
         self.assertEqual(chapter['title'], '1화. 왜?')
+        self.assertIn('1. 신자의 삶 전체가 회개여야 한다.', chapter['text'])
+        self.assertNotIn('1. 교황도 틀릴 수 있다.', chapter['text'])
+        self.assertEqual(len(self.public['manuscripts']), 1)
         self.assertNotIn('chapterReviews', self.public)
         self.assertNotIn('manuscriptFacts', self.public)
+        self.assertNotIn('thesisLinks', self.public)
         review = self.author['chapterReviews'][0]
         self.assertEqual(review['id'], chapter['id'])
         self.assertTrue(all(item['evidence'] for item in review['categories']))
