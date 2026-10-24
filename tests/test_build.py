@@ -57,6 +57,16 @@ class BuildTests(unittest.TestCase):
         self.assertIn('parts', author)
         self.assertEqual(author['audience'], 'author')
 
+    def test_part_one_plan_does_not_create_fake_manuscripts(self):
+        plan = self.author['partOne']
+        self.assertEqual([e['number'] for e in plan['episodes']], list(range(1, 9)))
+        self.assertEqual(plan['episodes'][0]['status'], '등록 원고 있음')
+        self.assertTrue(all(e['status'] == '계획' for e in plan['episodes'][1:]))
+        self.assertEqual(len(self.public['manuscripts']), 1)
+        self.assertNotIn('partOne', self.public)
+        self.assertTrue(all(e['check'] and e['theses'] for e in plan['episodes']))
+        self.assertTrue(plan['review']['issues'])
+
     def test_chapter_text_matches_source_and_review_is_private(self):
         source = (ROOT/'manuscripts/current/001-why.md').read_text(encoding='utf-8').strip()
         chapter = next(c for c in self.public['manuscripts'] if c['id'] == '001-why')

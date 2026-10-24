@@ -76,3 +76,7 @@ tailscale funnel --bg --yes --https=10000 --set-path=/religion/admin http://127.
 이후 업데이트는 `git pull --ff-only`, `python3 scripts/build_views.py`, `docker compose up -d` 순으로 실행한다. 설정 변경 시 `docker compose exec religion-novel caddy reload --config /etc/caddy/Caddyfile`도 실행한다.
 
  v4는 인쇄 거부·실직·사실 고백과 책임의 차이를 채택했다. 발전 검토는 해결 항목과 남은 의견을 분리한다. 6부의 1524년 표제와 1525년 12개조는 연대 충돌로 기록하며 원안의 연도를 자동 변경하지 않는다.
+
+## 1부 세부 계획
+
+`story_bible/PART_ONE_8_EPISODES.txt`는 사용자 제공 1부 1–8화 구성이다. 작가 화면의 스토리라인에서 회차별 역할·사건·논제 연결·설정 검토를 확인한다. 1화는 등록 원고, 2–8화와 2부 9화 도입 제안은 미집필 계획이다. 공개 원고 수는 1편으로 유지한다.
