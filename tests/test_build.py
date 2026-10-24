@@ -57,5 +57,21 @@ class BuildTests(unittest.TestCase):
         self.assertIn('parts', author)
         self.assertEqual(author['audience'], 'author')
 
+    def test_chapter_text_matches_source_and_review_is_private(self):
+        source = (ROOT/'manuscripts/current/001-why.md').read_text(encoding='utf-8').strip()
+        chapter = next(c for c in self.public['manuscripts'] if c['id'] == '001-why')
+        self.assertEqual(chapter['text'], '\n'.join(source.splitlines()[1:]).strip())
+        self.assertEqual(chapter['title'], '1화. 왜?')
+        self.assertNotIn('chapterReviews', self.public)
+        self.assertNotIn('manuscriptFacts', self.public)
+        review = self.author['chapterReviews'][0]
+        self.assertEqual(review['id'], chapter['id'])
+        self.assertTrue(all(item['evidence'] for item in review['categories']))
+        for item in self.author['manuscriptFacts']:
+            self.assertIn(item['evidence'], chapter['text'])
+        for motif in self.author['motifs']:
+            for evidence in motif.get('verify', []):
+                self.assertIn(evidence['quote'], chapter['text'])
+
 if __name__ == '__main__':
     unittest.main()
