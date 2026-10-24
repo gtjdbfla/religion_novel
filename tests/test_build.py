@@ -57,9 +57,18 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(author['audience'], 'author')
 
     def test_plans_do_not_create_fake_manuscripts(self):
-        self.assertEqual(len(self.public['manuscripts']), 2)
+        self.assertEqual(len(self.public['manuscripts']), 3)
         self.assertEqual(self.author['episodePlan'][0]['status'], '등록 원고 있음')
-        self.assertTrue(all(e['status']=='계획' for e in self.author['episodePlan'][2:]))
+        self.assertTrue(all(e['status']=='계획' for e in self.author['episodePlan'][3:]))
+
+    def test_requested_chapter_two_edits_and_chapter_three(self):
+        chapters = {c['id']:c for c in self.public['manuscripts']}
+        self.assertIn('그걸 네 번째 질문으로 치지.', chapters['002-four']['text'])
+        self.assertIn('면벌은 죄를 덜어준다.', chapters['002-four']['text'])
+        self.assertIn('면벌은 벌을 덜어준다.', chapters['002-four']['text'])
+        source = (ROOT/'manuscripts/current/003-chest.md').read_text(encoding='utf-8').strip()
+        self.assertEqual(chapters['003-chest']['text'], '\n'.join(source.splitlines()[1:]).strip())
+        self.assertEqual({r['id'] for r in self.author['chapterReviews']}, set(chapters))
 
     def test_chapter_text_matches_source_and_review_has_evidence(self):
         source = (ROOT/'manuscripts/current/001-why.md').read_text(encoding='utf-8').strip()
@@ -69,7 +78,7 @@ class BuildTests(unittest.TestCase):
         self.assertIn('신자의 삶 전체가 회개여야 한다.', chapter['text'])
         self.assertIn('**1.**', chapter['text'])
         self.assertNotIn('1. 교황도 틀릴 수 있다.', chapter['text'])
-        self.assertEqual(len(self.public['manuscripts']), 2)
+        self.assertEqual(len(self.public['manuscripts']), 3)
         self.assertIn('chapterReviews', self.public)
         self.assertIn('manuscriptFacts', self.public)
         self.assertIn('thesisLinks', self.public)
