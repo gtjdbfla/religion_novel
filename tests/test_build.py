@@ -13,61 +13,55 @@ class BuildTests(unittest.TestCase):
     def setUpClass(cls):
         cls.public, cls.author = builder.build()
 
-    def test_public_has_no_story_spoilers(self):
-        self.assertEqual(set(self.public), {'title','audience','premise','characters','manuscripts'})
-        self.assertEqual(self.public['audience'], 'reader')
-        serialized = json.dumps(self.public, ensure_ascii=False)
-        for secret in ['선생님이 시작한 겁니까?', '정정하지 않는 침묵', '요한과 루터의 결별']:
-            self.assertNotIn(secret, serialized)
+    def test_default_workspace_is_full_author_mode(self):
+        self.assertEqual(self.public['audience'], 'author')
+        self.assertEqual(self.public, self.author)
+        for key in ['episodePlan','characters','chapterReviews','research','outlineReview']:
+            self.assertIn(key, self.public)
 
     def test_author_plan_is_complete(self):
-        self.assertEqual(len(self.author['parts']), 12)
-        self.assertEqual(self.author['parts'][0]['label'], '프롤로그')
+        self.assertEqual(len(self.author['parts']), 11)
+        self.assertEqual(self.author['parts'][0]['label'], '1부')
         self.assertEqual(self.author['parts'][-2]['label'], '10부')
         self.assertEqual(self.author['parts'][-1]['label'], '에필로그')
         self.assertTrue(all(p['check'] and p['question'] for p in self.author['parts']))
         self.assertTrue(all(p['source'] for p in self.author['research']))
 
     def test_revision_replaces_old_character_origin(self):
-        self.assertEqual(self.author['version'], '4.0')
+        self.assertEqual(self.author['version'], '39화 집필안')
         self.assertIn('농민의 둘째 아들', self.public['characters'][0]['summary'])
         self.assertNotIn('견습공', self.public['characters'][0]['summary'])
         self.assertIn('허락 없이', self.author['research'][0]['note'])
         self.assertEqual(self.public['title'], '원문')
 
-    def test_v4_resolutions_are_applied(self):
-        parts = {item['label']: item for item in self.author['parts']}
-        self.assertIn('고백한다', parts['7부']['event'])
-        self.assertIn('일자리를 잃는다', parts['8부']['event'])
-        self.assertIn('자네는?', parts['10부']['event'])
-        self.assertIn('알고 있는 사실을 말해준다', parts['에필로그']['event'])
-        self.assertTrue(self.author['resolvedReview'])
-        self.assertTrue(any(item['kind'] == '연대 충돌' for item in self.author['research']))
+    def test_39_episode_plan_and_character_settings(self):
+        episodes = self.author['episodePlan']
+        self.assertEqual([e['number'] for e in episodes], list(range(1,40)))
+        self.assertEqual([e['number'] for e in episodes if e['part']==1], list(range(1,7)))
+        self.assertEqual(episodes[-1]['title'], '원문')
+        self.assertEqual(episodes[11]['title'], '제목')
+        self.assertTrue(all(p['settings'] for p in self.author['characters']))
+        self.assertTrue(self.author['outlineReview']['issues'])
 
     def test_editorial_suggestions_are_separate(self):
         self.assertTrue(self.author['developmentReview'])
-        self.assertNotIn('developmentReview', self.public)
-        self.assertNotIn('research', self.public)
+        self.assertIn('developmentReview', self.public)
+        self.assertIn('research', self.public)
         self.assertTrue(all(item['decision'] for item in self.author['developmentReview']))
 
-    def test_output_is_separate(self):
+    def test_legacy_and_default_workspace_outputs_match(self):
         public = json.loads((ROOT/'site/data/project.json').read_text(encoding='utf-8'))
         author = json.loads((ROOT/'author-site/data/project.json').read_text(encoding='utf-8'))
-        self.assertNotIn('parts', public)
+        self.assertEqual(public, author)
         self.assertIn('parts', author)
         self.assertEqual(author['audience'], 'author')
 
-    def test_part_one_plan_does_not_create_fake_manuscripts(self):
-        plan = self.author['partOne']
-        self.assertEqual([e['number'] for e in plan['episodes']], list(range(1, 9)))
-        self.assertEqual(plan['episodes'][0]['status'], '등록 원고 있음')
-        self.assertTrue(all(e['status'] == '계획' for e in plan['episodes'][1:]))
+    def test_plans_do_not_create_fake_manuscripts(self):
         self.assertEqual(len(self.public['manuscripts']), 1)
-        self.assertNotIn('partOne', self.public)
-        self.assertTrue(all(e['check'] and e['theses'] for e in plan['episodes']))
-        self.assertTrue(plan['review']['issues'])
+        self.assertEqual(self.author['episodePlan'][0]['status'], '등록 원고 있음')
+        self.assertTrue(all(e['status']=='계획' for e in self.author['episodePlan'][1:]))
 
-    def test_chapter_text_matches_source_and_review_is_private(self):
+    def test_chapter_text_matches_source_and_review_has_evidence(self):
         source = (ROOT/'manuscripts/current/001-why.md').read_text(encoding='utf-8').strip()
         chapter = next(c for c in self.public['manuscripts'] if c['id'] == '001-why')
         self.assertEqual(chapter['text'], '\n'.join(source.splitlines()[1:]).strip())
@@ -75,9 +69,9 @@ class BuildTests(unittest.TestCase):
         self.assertIn('1. 신자의 삶 전체가 회개여야 한다.', chapter['text'])
         self.assertNotIn('1. 교황도 틀릴 수 있다.', chapter['text'])
         self.assertEqual(len(self.public['manuscripts']), 1)
-        self.assertNotIn('chapterReviews', self.public)
-        self.assertNotIn('manuscriptFacts', self.public)
-        self.assertNotIn('thesisLinks', self.public)
+        self.assertIn('chapterReviews', self.public)
+        self.assertIn('manuscriptFacts', self.public)
+        self.assertIn('thesisLinks', self.public)
         review = self.author['chapterReviews'][0]
         self.assertEqual(review['id'], chapter['id'])
         self.assertTrue(all(item['evidence'] for item in review['categories']))
