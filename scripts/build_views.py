@@ -26,7 +26,7 @@ def build():
     shutil.copytree(ROOT / 'site', author_dir, dirs_exist_ok=True)
     author = dict(config, audience='author', manuscripts=manuscripts)
     (author_dir / 'data/project.json').write_text(json.dumps(author, ensure_ascii=False, indent=2), encoding='utf-8')
-    print(f'공개 원고 {len(manuscripts)}편 · 구성 {len(config["parts"])}부/에필로그 · 독자/작가 화면 생성 완료')
+    print(f'공개 원고 {len(manuscripts)}편 · {config["structure"]} · 독자/작가 화면 생성 완료')
     return public, author
 
 if __name__ == '__main__':

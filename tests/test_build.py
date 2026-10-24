@@ -21,10 +21,25 @@ class BuildTests(unittest.TestCase):
             self.assertNotIn(secret, serialized)
 
     def test_author_plan_is_complete(self):
-        self.assertEqual(len(self.author['parts']), 10)
+        self.assertEqual(len(self.author['parts']), 12)
+        self.assertEqual(self.author['parts'][0]['label'], '프롤로그')
+        self.assertEqual(self.author['parts'][-2]['label'], '10부')
         self.assertEqual(self.author['parts'][-1]['label'], '에필로그')
         self.assertTrue(all(p['check'] and p['question'] for p in self.author['parts']))
         self.assertTrue(all(p['source'] for p in self.author['research']))
+
+    def test_revision_replaces_old_character_origin(self):
+        self.assertEqual(self.author['version'], '2.0')
+        self.assertIn('농민의 아들', self.public['characters'][0]['summary'])
+        self.assertNotIn('견습공', self.public['characters'][0]['summary'])
+        self.assertIn('허락 없이', self.author['storyPremise'])
+        self.assertIn('선택 가능한', self.author['parts'][-2]['event'])
+
+    def test_editorial_suggestions_are_separate(self):
+        self.assertTrue(self.author['developmentReview'])
+        self.assertNotIn('developmentReview', self.public)
+        self.assertNotIn('research', self.public)
+        self.assertTrue(all(item['decision'] for item in self.author['developmentReview']))
 
     def test_output_is_separate(self):
         public = json.loads((ROOT/'site/data/project.json').read_text(encoding='utf-8'))
