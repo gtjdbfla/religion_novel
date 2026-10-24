@@ -29,11 +29,20 @@ class BuildTests(unittest.TestCase):
         self.assertTrue(all(p['source'] for p in self.author['research']))
 
     def test_revision_replaces_old_character_origin(self):
-        self.assertEqual(self.author['version'], '2.0')
-        self.assertIn('농민의 아들', self.public['characters'][0]['summary'])
+        self.assertEqual(self.author['version'], '4.0')
+        self.assertIn('농민의 둘째 아들', self.public['characters'][0]['summary'])
         self.assertNotIn('견습공', self.public['characters'][0]['summary'])
-        self.assertIn('허락 없이', self.author['storyPremise'])
-        self.assertIn('선택 가능한', self.author['parts'][-2]['event'])
+        self.assertIn('허락 없이', self.author['research'][0]['note'])
+        self.assertEqual(self.public['title'], '원문')
+
+    def test_v4_resolutions_are_applied(self):
+        parts = {item['label']: item for item in self.author['parts']}
+        self.assertIn('고백한다', parts['7부']['event'])
+        self.assertIn('일자리를 잃는다', parts['8부']['event'])
+        self.assertIn('자네는?', parts['10부']['event'])
+        self.assertIn('알고 있는 사실을 말해준다', parts['에필로그']['event'])
+        self.assertTrue(self.author['resolvedReview'])
+        self.assertTrue(any(item['kind'] == '연대 충돌' for item in self.author['research']))
 
     def test_editorial_suggestions_are_separate(self):
         self.assertTrue(self.author['developmentReview'])
