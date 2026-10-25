@@ -32,7 +32,7 @@ class BuildTests(unittest.TestCase):
         self.assertIn('농민의 둘째 아들', self.public['characters'][0]['summary'])
         self.assertNotIn('견습공', self.public['characters'][0]['summary'])
         self.assertIn('허락 없이', self.author['research'][0]['note'])
-        self.assertEqual(self.public['title'], '원문')
+        self.assertEqual(self.public['title'], '활자와 망치')
 
     def test_39_episode_plan_and_character_settings(self):
         episodes = self.author['episodePlan']
