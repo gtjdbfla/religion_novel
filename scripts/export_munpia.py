@@ -20,7 +20,7 @@ def convert(md: str) -> tuple[str, str]:
     body = []
     for line in lines[1:]:
         line = line.rstrip()
-        if line.strip() == "---":
+        if line.strip() in ("---", "⸻"):
             line = BREAK
         line = re.sub(r"^>\s?", "", line)
         line = line.replace("**", "")
