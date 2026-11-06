@@ -1,7 +1,7 @@
 """manuscripts/current 의 마크다운 원고를 문피아 붙여넣기용 텍스트로 변환한다.
 
 사용: python scripts/export_munpia.py [시작화] [끝화]   (기본 1 3)
-출력: munpia/<문피아 소제목>.txt (본문만), munpia/INDEX.md (제목·글자수)
+출력: munpia/<회차>화_<소제목>.txt (본문만), munpia/INDEX.md (제목·글자수)
 원고 원본은 수정하지 않는다.
 """
 import re
@@ -41,8 +41,9 @@ def main() -> None:
             continue
         title, text = convert(path.read_text(encoding="utf-8"))
         subtitle = re.sub(r"^\d+화\.\s*", "", title)
+        filename_title = re.sub(r'[<>:"/\\|*]', "", subtitle.replace("?", "？")).strip().rstrip(".")
+        filename = f"{n}화_{filename_title}.txt"
         subtitle = re.sub(r'[<>:"/\\|?*]', "", subtitle).strip().rstrip(".")
-        filename = f"{subtitle}.txt"
         (OUT / filename).write_text(text, encoding="utf-8")
         rows.append((n, subtitle, len(text.strip()), len(re.sub(r"\s", "", text)), filename))
     index = ["# 문피아 등록용 회차 목록", "", "| 회차 | 문피아 소제목 | 공백 포함 | 공백 제외 | 본문 파일 |", "|---|---|---|---|---|"]
