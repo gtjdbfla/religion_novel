@@ -12,6 +12,16 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "manuscripts" / "current"
 OUT = ROOT / "munpia"
 BREAK = "* * *"
+# 문피아에 올리는 소제목. 원고 파일의 회차 제목(대시보드·개요용)과 따로 관리한다. 없는 회차는 원고 제목을 쓴다.
+MUNPIA_SUBTITLES = {
+    1: "영웅은 그날도 술을 마시고 있었다",
+    2: "질문은 하루에 네 개까지",
+    3: "동전이 궤짝에 떨어지면",
+    4: "아버지가 소를 팔았다",
+    6: "아흔다섯 번째 문장",
+    8: "이거 더 팔리겠는데",
+    9: "훨씬 좋은 이야기",
+}
 
 
 def convert(md: str) -> tuple[str, str]:
@@ -41,9 +51,13 @@ def main() -> None:
             continue
         title, text = convert(path.read_text(encoding="utf-8"))
         subtitle = re.sub(r"^\d+화\.\s*", "", title)
+        subtitle = MUNPIA_SUBTITLES.get(n, subtitle)
         filename_title = re.sub(r'[<>:"/\\|*]', "", subtitle.replace("?", "？")).strip().rstrip(".")
         filename = f"{n}화_{filename_title}.txt"
         subtitle = re.sub(r'[<>:"/\\|?*]', "", subtitle).strip().rstrip(".")
+        for old in OUT.glob(f"{n}화_*.txt"):
+            if old.name != filename:
+                old.unlink()
         (OUT / filename).write_text(text, encoding="utf-8")
         rows.append((n, subtitle, len(text.strip()), len(re.sub(r"\s", "", text)), filename))
     index = ["# 문피아 등록용 회차 목록", "", "| 회차 | 문피아 소제목 | 공백 포함 | 공백 제외 | 본문 파일 |", "|---|---|---|---|---|"]
